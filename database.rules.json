@@ -1,0 +1,164 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "allowlist": {
+      "$email": {
+        ".read": "auth != null && auth.token.email != null && auth.token.email.toLowerCase().replace('.', ',') === $email"
+      }
+    },
+    "teachers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('allowlist').child(auth.token.email.toLowerCase().replace('.', ',')).val() === true",
+        ".validate": "newData.hasChildren(['email'])"
+      }
+    },
+    "ownerJams": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && root.child('teachers').child(auth.uid).exists()"
+      }
+    },
+    "teacherAssignments": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && root.child('teachers').child(auth.uid).exists()"
+      }
+    },
+    "joinCodes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('teachers').child(auth.uid).exists() && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || data.child('ownerUid').val() === auth.uid)",
+        ".validate": "newData.hasChildren(['assignmentId', 'ownerUid', 'open']) && newData.child('open').isBoolean() && $code.length >= 6 && $code.length <= 8"
+      }
+    },
+    "assignments": {
+      "$aid": {
+        ".read": "auth != null && data.child('info').child('ownerUid').val() === auth.uid",
+        ".write": "auth != null && data.exists() && !newData.exists() && data.child('info').child('ownerUid').val() === auth.uid",
+        "info": {
+          ".read": "auth != null",
+          ".write": "auth != null && root.child('teachers').child(auth.uid).exists() && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || data.child('ownerUid').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['ownerUid', 'title', 'mode', 'code']) && newData.child('mode').val().matches(/^(class|individual|groups)$/)"
+        },
+        "template": {
+          ".read": "auth != null",
+          ".write": "auth != null && (root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid || newData.parent().child('info').child('ownerUid').val() === auth.uid)"
+        },
+        "classJam": {
+          ".read": "auth != null",
+          ".write": "auth != null && (root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid || newData.parent().child('info').child('ownerUid').val() === auth.uid)"
+        },
+        "groupJams": {
+          ".read": "auth != null",
+          ".write": "auth != null && (root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid || newData.parent().child('info').child('ownerUid').val() === auth.uid)"
+        },
+        "copies": {
+          ".read": "auth != null && root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid",
+          ".write": "auth != null && (root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid || newData.parent().child('info').child('ownerUid').val() === auth.uid)",
+          "$jid": {
+            ".write": "auth != null && !data.exists() && newData.child('studentUid').val() === auth.uid && root.child('assignments').child($aid).child('info').child('mode').val() === 'individual' && !root.child('assignments').child($aid).child('byUid').child(auth.uid).exists()"
+          }
+        },
+        "byUid": {
+          ".read": "auth != null && root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid",
+          ".write": "auth != null && (root.child('assignments').child($aid).child('info').child('ownerUid').val() === auth.uid || newData.parent().child('info').child('ownerUid').val() === auth.uid)",
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.isString() && root.child('assignments').child($aid).child('info').child('mode').val() === 'individual'"
+          }
+        }
+      }
+    },
+    "jams": {
+      "$jid": {
+        ".read": "auth != null && (data.child('meta').child('ownerUid').val() === auth.uid || data.child('members').child(auth.uid).exists())",
+        ".write": "auth != null && (data.child('meta').child('ownerUid').val() === auth.uid || (!data.exists() && newData.child('meta').child('ownerUid').val() === auth.uid && root.child('teachers').child(auth.uid).exists()) || (!data.exists() && newData.child('meta').child('kind').val() === 'copy' && newData.child('meta').child('studentUid').val() === auth.uid && root.child('assignments').child(newData.child('meta').child('assignmentId').val()).child('info').child('mode').val() === 'individual' && root.child('assignments').child(newData.child('meta').child('assignmentId').val()).child('info').child('ownerUid').val() === newData.child('meta').child('ownerUid').val() && root.child('joinCodes').child(newData.child('meta').child('joinCode').val()).child('open').val() === true && root.child('joinCodes').child(newData.child('meta').child('joinCode').val()).child('assignmentId').val() === newData.child('meta').child('assignmentId').val() && !root.child('assignments').child(newData.child('meta').child('assignmentId').val()).child('byUid').child(auth.uid).exists()))",
+        "meta": {
+          ".validate": "newData.hasChildren(['ownerUid', 'title']) && newData.child('title').isString() && newData.child('title').val().length <= 120 && (!data.exists() || newData.child('ownerUid').val() === data.child('ownerUid').val())"
+        },
+        "members": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && newData.exists() && root.child('joinCodes').child(newData.child('code').val()).child('open').val() === true && root.child('joinCodes').child(newData.child('code').val()).child('assignmentId').val() === root.child('jams').child($jid).child('meta').child('assignmentId').val()",
+            ".validate": "newData.hasChildren(['name', 'role', 'code']) && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 40 && newData.child('role').val() === 'student'"
+          }
+        },
+        "frameOrder": {
+          ".write": "auth != null && root.child('jams').child($jid).child('members').child(auth.uid).exists() && root.child('jams').child($jid).child('meta').child('locked').val() !== true"
+        },
+        "touched": {
+          ".write": "auth != null && root.child('jams').child($jid).child('members').child(auth.uid).exists()",
+          ".validate": "newData.isNumber()"
+        },
+        "frames": {
+          "$fid": {
+            ".write": "auth != null && root.child('jams').child($jid).child('members').child(auth.uid).exists() && root.child('jams').child($jid).child('meta').child('locked').val() !== true && ((!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && root.child('jams').child($jid).child('meta').child('studentsCanClear').val() === true))",
+            "objects": {
+              "$oid": {
+                ".write": "auth != null && root.child('jams').child($jid).child('members').child(auth.uid).exists() && root.child('jams').child($jid).child('meta').child('locked').val() !== true && !data.child('lockedByTeacher').exists() && (newData.exists() || data.child('authorUid').val() === auth.uid || data.child('type').val() === 'stroke' || root.child('jams').child($jid).child('meta').child('studentsCanClear').val() === true)",
+                ".validate": "newData.hasChildren(['type', 'x', 'y', 'w', 'h']) && newData.child('type').val().matches(/^(sticky|text|shape|image|stroke)$/) && (!root.child('jams').child($jid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid || ((data.exists() || newData.child('authorUid').val() === auth.uid) && (!data.exists() || newData.child('authorUid').val() === data.child('authorUid').val()) && !newData.child('lockedByTeacher').exists()))",
+                "text": {
+                  ".validate": "newData.isString() && newData.val().length <= 500"
+                },
+                "src": {
+                  ".validate": "newData.isString() && newData.val().beginsWith('data:image/') && newData.val().length <= 450000"
+                },
+                "pts": {
+                  ".validate": "newData.isString() && newData.val().length <= 300000"
+                },
+                "x": {
+                  ".validate": "newData.isNumber()"
+                },
+                "y": {
+                  ".validate": "newData.isNumber()"
+                },
+                "w": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0"
+                },
+                "h": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "presence": {
+      "$jid": {
+        ".read": "auth != null && (root.child('jams').child($jid).child('members').child(auth.uid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid)",
+        ".write": "auth != null && root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('jams').child($jid).child('members').child(auth.uid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid)"
+        }
+      }
+    },
+    "laser": {
+      "$jid": {
+        ".read": "auth != null && (root.child('jams').child($jid).child('members').child(auth.uid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid)",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('jams').child($jid).child('members').child(auth.uid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid)",
+          ".validate": "!newData.exists() || (newData.child('p').isString() && newData.child('p').val().length <= 2000)"
+        }
+      }
+    },
+    "versions": {
+      "$jid": {
+        ".read": "auth != null && root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid",
+        ".write": "auth != null && root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid",
+        "$vid": {
+          ".write": "auth != null && !data.exists() && root.child('jams').child($jid).child('members').child(auth.uid).exists()",
+          ".validate": "newData.hasChildren(['createdAt', 'snapshot'])"
+        }
+      }
+    },
+    "versionLast": {
+      "$jid": {
+        ".read": "auth != null && (root.child('jams').child($jid).child('members').child(auth.uid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid)",
+        ".write": "auth != null && (root.child('jams').child($jid).child('members').child(auth.uid).exists() || root.child('jams').child($jid).child('meta').child('ownerUid').val() === auth.uid)",
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+}

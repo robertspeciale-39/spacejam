@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#05070a">
+<meta name="description" content="SpaceJam: a collaborative whiteboard for the classroom. Join with a code, add sticky notes, draw, and brainstorm together.">
+<title>SpaceJam · CyberSpesh</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/cyberspesh.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="matrix">
+
+<canvas id="matrix-rain" aria-hidden="true"></canvas>
+<div class="atmos" aria-hidden="true"></div>
+
+<div class="shell" style="grid-template-rows:auto 1fr">
+<header class="topbar">
+  <a class="brand" href="./">
+    <img class="brand-mark" src="assets/brand-mark.png" alt="West CTA Cybersecurity logo" width="38" height="38">
+    <div class="brand-text">
+      <div class="brand-title">SpaceJam</div>
+      <div class="brand-sub">COLLABORATIVE WHITEBOARD · WEST CTA CYBERSECURITY</div>
+    </div>
+  </a>
+  <div class="topbar-sep"></div>
+  <div class="theme-switcher" role="group" aria-label="Colour theme">
+    <span class="theme-label">THEME</span>
+    <button type="button" class="theme-btn active" data-theme="matrix"  aria-pressed="true">Matrix</button>
+    <button type="button" class="theme-btn" data-theme="arctic"  aria-pressed="false">Arctic</button>
+    <button type="button" class="theme-btn" data-theme="crimson" aria-pressed="false">Crimson Ops</button>
+    <button type="button" class="theme-btn" data-theme="tokyo"   aria-pressed="false">Tokyo</button>
+    <button type="button" class="theme-btn" data-theme="galaxy"  aria-pressed="false">Galaxy</button>
+  </div>
+</header>
+
+<main class="landing">
+  <div id="demoBanner"></div>
+  <section class="hero">
+    <div class="hero-kicker">// whiteboard.join()</div>
+    <h1>Jam together.</h1>
+    <p>Sticky notes, drawings, shapes, and images on shared frames. Enter the code your teacher shows on the board to jump in.</p>
+  </section>
+
+  <div class="join-grid">
+    <section class="panel" aria-labelledby="joinTitle">
+      <div class="panel-hdr"><h2 class="panel-title" id="joinTitle">Join a jam</h2></div>
+      <div class="panel-body">
+        <form id="joinForm" autocomplete="off" novalidate>
+          <div id="stepCode">
+            <div class="field-row">
+              <label class="field-label" for="code">Join code</label>
+              <input id="code" class="field code-input" inputmode="text" autocapitalize="characters" maxlength="8" placeholder="K7QM4X" aria-describedby="joinErr" required>
+            </div>
+            <div class="field-row">
+              <label class="field-label" for="name">Your name</label>
+              <input id="name" class="field" maxlength="40" placeholder="First name and last initial" aria-describedby="nameHint joinErr" required>
+              <p class="hint" id="nameHint" style="margin-top:var(--sp-2)">Use the name your teacher asked for. Classmates will see it.</p>
+            </div>
+          </div>
+          <div id="stepGroup" hidden>
+            <p class="hint" id="groupIntro" style="margin-bottom:var(--sp-3)"></p>
+            <div class="group-picks" id="groupPicks" role="group" aria-label="Choose your group"></div>
+          </div>
+          <div class="err" id="joinErr" role="alert"></div>
+          <button class="btn" id="joinBtn" type="submit" style="width:100%">Join</button>
+          <button class="btn btn-ghost" id="backBtn" type="button" hidden style="width:100%;margin-top:var(--sp-2)">Back</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="teachTitle">
+      <div class="panel-hdr"><h2 class="panel-title" id="teachTitle">Teachers</h2></div>
+      <div class="panel-body">
+        <p class="hint" id="teachMsg" style="margin-bottom:var(--sp-4)">Create jams, hand out join codes, and watch every student or group work live.</p>
+        <div class="err" id="teachErr" role="alert"></div>
+        <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+          <button class="btn" id="teachBtn">Teacher sign-in</button>
+          <a class="btn btn-ghost" id="dashBtn" href="dashboard.html" hidden style="display:inline-flex;align-items:center;text-decoration:none">Open dashboard</a>
+          <button class="btn btn-ghost" id="signOutBtn" hidden>Sign out</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</div>
+
+<script src="js/theme.js" defer></script>
+<script type="module" src="js/join.js"></script>
+</body>
+</html>

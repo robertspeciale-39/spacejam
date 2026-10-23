@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#05070a">
+<title>Dashboard · SpaceJam</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/cyberspesh.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="matrix">
+
+<canvas id="matrix-rain" aria-hidden="true"></canvas>
+<div class="atmos" aria-hidden="true"></div>
+
+<div class="shell" style="grid-template-rows:auto 1fr">
+<header class="topbar">
+  <a class="brand" href="./">
+    <img class="brand-mark" src="assets/brand-mark.png" alt="West CTA Cybersecurity logo" width="38" height="38">
+    <div class="brand-text">
+      <div class="brand-title">SpaceJam</div>
+      <div class="brand-sub">TEACHER DASHBOARD · WEST CTA CYBERSECURITY</div>
+    </div>
+  </a>
+  <div class="topbar-sep"></div>
+  <span class="topbar-tag" id="who"></span>
+  <div class="theme-switcher" role="group" aria-label="Colour theme">
+    <span class="theme-label">THEME</span>
+    <button type="button" class="theme-btn active" data-theme="matrix"  aria-pressed="true">Matrix</button>
+    <button type="button" class="theme-btn" data-theme="arctic"  aria-pressed="false">Arctic</button>
+    <button type="button" class="theme-btn" data-theme="crimson" aria-pressed="false">Crimson Ops</button>
+    <button type="button" class="theme-btn" data-theme="tokyo"   aria-pressed="false">Tokyo</button>
+    <button type="button" class="theme-btn" data-theme="galaxy"  aria-pressed="false">Galaxy</button>
+  </div>
+  <button class="icon-btn" id="signOut" aria-label="Sign out" title="Sign out"></button>
+</header>
+
+<main class="dash" id="dash" hidden>
+  <div id="demoBanner"></div>
+
+  <section id="listView">
+    <div class="dash-head">
+      <h1>Your jams</h1>
+      <button class="btn" id="newJam">+ New jam</button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Dashboard sections">
+      <button class="tab" role="tab" id="tabJams" aria-selected="true" aria-controls="paneJams">My jams</button>
+      <button class="tab" role="tab" id="tabAssign" aria-selected="false" aria-controls="paneAssign">Assignments</button>
+    </div>
+    <div id="paneJams" role="tabpanel" aria-labelledby="tabJams">
+      <div id="jamGrid" class="card-grid"></div>
+    </div>
+    <div id="paneAssign" role="tabpanel" aria-labelledby="tabAssign" hidden>
+      <div id="assignList"></div>
+    </div>
+  </section>
+
+  <section id="detailView" hidden>
+    <div class="detail-bar">
+      <button class="btn btn-ghost sm" id="backToList">← All assignments</button>
+    </div>
+    <div class="detail-bar">
+      <h2 id="dTitle"></h2>
+      <span class="code-pill" id="dCode"></span>
+      <span class="status-pill" id="dStatus"></span>
+    </div>
+    <div class="detail-bar" style="margin-bottom:var(--sp-4)">
+      <button class="btn" id="dPresent">Present code</button>
+      <button class="btn btn-ghost" id="dToggleOpen"></button>
+      <button class="btn btn-ghost" id="dNewCode">New code</button>
+      <button class="btn btn-ghost" id="dLockAll">Lock all</button>
+      <button class="btn btn-ghost" id="dUnlockAll">Unlock all</button>
+      <span style="flex:1"></span>
+      <label class="field-label" for="dFrame" style="margin:0">Show frame</label>
+      <select id="dFrame" class="field" style="width:auto"></select>
+      <button class="btn btn-ghost btn-danger" id="dDelete">Delete</button>
+    </div>
+    <p class="hint" id="dMode" style="margin-bottom:var(--sp-4)"></p>
+    <div id="copyGrid" class="card-grid"></div>
+  </section>
+</main>
+
+<div id="gate" class="gate" hidden>
+  <h1>Teacher sign-in required</h1>
+  <p>Only signed-in teachers can see the dashboard.</p>
+  <a class="btn" href="./" style="display:inline-flex;align-items:center;text-decoration:none">Go to sign-in</a>
+</div>
+
+<div id="askModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="askTitle" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-title" id="askTitle"></div>
+    <p id="askMsg" class="hint" style="margin-bottom:var(--sp-3)"></p>
+    <input id="askInput" class="field" maxlength="80">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn" id="askOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="assignModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="amTitle" aria-hidden="true">
+  <div class="modal-card" id="assignCard"></div>
+</div>
+
+<div id="present" class="present" role="dialog" aria-modal="true" aria-label="Join code">
+  <div class="present-title" id="presentTitle"></div>
+  <div class="present-url" id="presentUrl"></div>
+  <div class="present-code" id="presentCode"></div>
+  <button class="btn btn-ghost" id="presentClose">Close (Esc)</button>
+</div>
+
+<div id="cardMenu" class="obj-menu" hidden style="position:fixed"><div class="menu" role="menu" id="cardMenuList"></div></div>
+
+<script src="js/theme.js" defer></script>
+<script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

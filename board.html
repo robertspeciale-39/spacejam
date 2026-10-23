@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#05070a">
+<title>SpaceJam · CyberSpesh</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/cyberspesh.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="matrix board-page">
+
+<canvas id="matrix-rain" aria-hidden="true"></canvas>
+<div class="atmos" aria-hidden="true"></div>
+
+<div class="app" id="app" hidden>
+  <header class="topbar board-top">
+    <a class="brand" href="./" title="SpaceJam home">
+      <img class="brand-mark" src="assets/brand-mark.png" alt="West CTA Cybersecurity logo" width="38" height="38">
+      <div class="brand-text">
+        <div class="brand-title">SpaceJam</div>
+        <div class="brand-sub">COLLABORATIVE WHITEBOARD · WEST CTA CYBERSECURITY</div>
+      </div>
+    </a>
+    <input id="jamTitle" class="jam-title" aria-label="Jam title" readonly spellcheck="false" maxlength="80">
+
+    <div class="framebar" role="group" aria-label="Frames">
+      <button id="prevFrame" class="icon-btn" aria-label="Previous frame"></button>
+      <button id="frameCounter" class="frame-counter" aria-expanded="false" aria-controls="frameStrip" title="Show all frames">1 / 1</button>
+      <button id="nextFrame" class="icon-btn" aria-label="Next frame"></button>
+    </div>
+
+    <div class="topbar-sep"></div>
+    <div class="board-actions">
+      <div id="presence" class="presence" aria-label="People on this jam"></div>
+      <button id="followBtn" class="chip-btn" aria-pressed="false" hidden title="Jump to whatever frame your teacher is on">Follow teacher</button>
+      <span id="connState" class="conn" role="status"></span>
+      <button id="bgBtn" class="icon-btn" aria-label="Set background" title="Set background" hidden></button>
+      <button id="shareBtn" class="btn sm" hidden>Share</button>
+      <div class="menu-wrap">
+        <button id="moreBtn" class="icon-btn" aria-label="More options" aria-haspopup="menu" aria-expanded="false" title="More"></button>
+        <div id="moreMenu" class="menu" role="menu"></div>
+      </div>
+      <div class="menu-wrap">
+        <button id="themeBtn" class="icon-btn" aria-label="Colour theme" aria-haspopup="true" aria-expanded="false" title="Theme"></button>
+        <div id="themeMenu" class="menu" style="min-width:200px">
+          <div class="menu-label">Theme</div>
+          <div class="theme-switcher vertical" role="group" aria-label="Colour theme">
+            <button type="button" class="theme-btn active" data-theme="matrix"  aria-pressed="true">Matrix</button>
+            <button type="button" class="theme-btn" data-theme="arctic"  aria-pressed="false">Arctic</button>
+            <button type="button" class="theme-btn" data-theme="crimson" aria-pressed="false">Crimson Ops</button>
+            <button type="button" class="theme-btn" data-theme="tokyo"   aria-pressed="false">Tokyo</button>
+            <button type="button" class="theme-btn" data-theme="galaxy"  aria-pressed="false">Galaxy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="frameStrip" class="frame-strip" hidden aria-label="All frames"></div>
+
+  <div class="workspace">
+    <nav id="toolbar" class="toolbar" aria-label="Tools"></nav>
+    <div class="stage-wrap" id="stageWrap">
+      <div class="propbar-slot"><div id="propbar" class="propbar" hidden role="toolbar" aria-label="Options"></div></div>
+      <div id="stage" class="stage">
+        <div id="paper" class="paper">
+          <svg id="board" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Whiteboard frame">
+            <g id="bgLayer"></g>
+            <g id="objLayer"></g>
+            <g id="liveLayer"></g>
+            <g id="selLayer"></g>
+            <g id="laserLayer"></g>
+          </svg>
+        </div>
+      </div>
+      <textarea id="textEditor" class="text-editor" hidden aria-label="Edit text" spellcheck="true"></textarea>
+      <button id="objMenuBtn" class="obj-menu-btn" hidden aria-label="Object options" aria-haspopup="menu"></button>
+      <div id="objMenu" class="obj-menu" hidden><div class="menu" role="menu" id="objMenuList"></div></div>
+      <div class="zoom" role="group" aria-label="Zoom">
+        <button id="zoomOut" class="icon-btn" aria-label="Zoom out"></button>
+        <button id="zoomLabel" class="zoom-label" title="Fit to screen">100%</button>
+        <button id="zoomIn" class="icon-btn" aria-label="Zoom in"></button>
+      </div>
+      <div id="lockedBanner" class="banner" hidden>View only · your teacher locked this jam</div>
+    </div>
+  </div>
+</div>
+
+<div id="gate" class="gate" hidden>
+  <h1 id="gateTitle">Loading…</h1>
+  <p id="gateMsg"></p>
+  <a class="btn" href="./" id="gateBtn" style="display:inline-flex;align-items:center;text-decoration:none" hidden>Go to SpaceJam home</a>
+</div>
+
+<!-- Sticky note dialog -->
+<div id="noteModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="noteTitle" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-title" id="noteTitle">Sticky note</div>
+    <div class="note-preview-wrap">
+      <div>
+        <div id="noteEditor" class="note-editor"><textarea id="noteText" maxlength="500" aria-label="Note text" placeholder="Type your idea…"></textarea></div>
+        <div class="char-count" id="noteCount">0 / 500</div>
+      </div>
+      <div>
+        <div class="field-row">
+          <span class="field-label" id="noteColorLabel">Colour</span>
+          <div id="noteColors" class="flyout-row" role="group" aria-labelledby="noteColorLabel"></div>
+        </div>
+        <div class="field-row">
+          <label class="field-label" for="noteFont">Font</label>
+          <select id="noteFont" class="field"></select>
+        </div>
+        <p class="hint">Text shrinks automatically to fit the note.</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Cancel</button>
+      <button class="btn" id="noteSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Background dialog -->
+<div id="bgModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bgTitle" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-title" id="bgTitle">Set background</div>
+    <div id="bgGrid" class="bg-grid"></div>
+    <div class="modal-actions" style="justify-content:space-between">
+      <button class="btn btn-ghost" id="bgUpload">Upload image…</button>
+      <button class="btn" data-close>Done</button>
+    </div>
+    <p class="hint" style="margin-top:var(--sp-3)">Backgrounds are locked: students can draw over them but can't move, erase, or clear them.</p>
+  </div>
+</div>
+
+<!-- Share / assign dialog (teacher) -->
+<div id="shareModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="shareTitle" aria-hidden="true">
+  <div class="modal-card" id="shareCard"></div>
+</div>
+
+<!-- Version history (teacher) -->
+<div id="versionsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="versionsTitle" aria-hidden="true">
+  <div class="modal-card wide">
+    <div class="modal-title" id="versionsTitle">Version history</div>
+    <div class="versions">
+      <div>
+        <button class="btn btn-ghost" id="nameVersion" style="width:100%;margin-bottom:var(--sp-3)">Name current version…</button>
+        <div id="versionList" class="version-list" role="list"></div>
+      </div>
+      <div>
+        <div id="versionPreview" class="version-preview"><p class="hint">Pick a version to preview it.</p></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Close</button>
+      <button class="btn" id="restoreVersion" disabled>Restore this version</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shortcuts -->
+<div id="keysModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="keysTitle" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-title" id="keysTitle">Keyboard shortcuts</div>
+    <div class="tbl-wrap"><table class="cs-table"><tbody id="keysBody"></tbody></table></div>
+    <div class="modal-actions"><button class="btn" data-close>Close</button></div>
+  </div>
+</div>
+
+<!-- Generic prompt / confirm -->
+<div id="askModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="askTitle" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-title" id="askTitle"></div>
+    <p id="askMsg" class="hint" style="margin-bottom:var(--sp-3)"></p>
+    <input id="askInput" class="field" maxlength="80">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close id="askCancel">Cancel</button>
+      <button class="btn" id="askOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="present" class="present" role="dialog" aria-modal="true" aria-label="Join code">
+  <div class="present-title" id="presentTitle"></div>
+  <div class="present-url" id="presentUrl"></div>
+  <div class="present-code" id="presentCode"></div>
+  <button class="btn btn-ghost" id="presentClose">Close (Esc)</button>
+</div>
+
+<input type="file" id="imageInput" accept="image/*" hidden>
+<input type="file" id="bgInput" accept="image/*" hidden>
+
+<script src="js/theme.js" defer></script>
+<script type="module" src="js/board.js"></script>
+</body>
+</html>
