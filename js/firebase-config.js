@@ -10,11 +10,11 @@
 //  everything is stored in this browser and syncs between tabs only.
 // ─────────────────────────────────────────────────────────────
 export const firebaseConfig = {
-  apiKey: '',
-  authDomain: '',
-  databaseURL: '',
-  projectId: '',
-  appId: ''
+  apiKey: 'AIzaSyAw-AfBhuvDqT-4-PGlsv7HT_q1huOi6yA',
+  authDomain: 'spacejam-westcta.firebaseapp.com',
+  databaseURL: 'https://spacejam-westcta-default-rtdb.firebaseio.com',
+  projectId: 'spacejam-westcta',
+  appId: '1:753381265718:web:cf6d6b373021aba422a397'
 };
 
 // Firebase JS SDK version loaded from Google's CDN (gstatic).
