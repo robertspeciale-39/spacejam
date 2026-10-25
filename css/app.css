@@ -7,7 +7,7 @@
 :root {
   --topbar-h: 64px;
   --toolbar-w: 64px;
-  --propbar-h: 60px;
+  --propbar-h: 56px;
   --shadow-md: 0 8px 30px rgba(0,0,0,.4);
   --shadow-lg: 0 16px 48px rgba(0,0,0,.45);
   --shadow-xl: 0 24px 80px rgba(0,0,0,.5);
@@ -207,7 +207,10 @@ input.field:focus, select.field:focus, textarea.field:focus { border-color: var(
    BOARD
 ══════════════════════════════════════════════════════ */
 body.board-page { overflow: hidden; height: 100dvh; }
-.app { position: relative; z-index: var(--z-content); height: 100dvh; display: grid; grid-template-rows: auto auto 1fr; }
+.app { position: relative; z-index: var(--z-content); height: 100dvh; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
+.app > .board-top { grid-row: 1; }
+.app > .frame-strip { grid-row: 2; }
+.app > .workspace { grid-row: 3; }
 .board-top { flex-wrap: nowrap; gap: var(--sp-3); padding: var(--sp-2) var(--sp-4); min-height: var(--topbar-h); position: relative; }
 .board-top .brand-sub { max-width: 240px; }
 .jam-title {
@@ -274,7 +277,7 @@ body.board-page { overflow: hidden; height: 100dvh; }
 }
 .fthumb-add:hover { background: var(--surface-2); }
 
-.workspace { position: relative; display: grid; grid-template-columns: var(--toolbar-w) 1fr; min-height: 0; }
+.workspace { position: relative; display: grid; grid-template-columns: var(--toolbar-w) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); min-height: 0; }
 .toolbar {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-1);
   padding: var(--sp-3) var(--sp-2); margin: var(--sp-3) 0 var(--sp-3) var(--sp-2);
@@ -327,7 +330,7 @@ body.board-page { overflow: hidden; height: 100dvh; }
 .swatch.note { border-radius: 6px; width: 44px; height: 44px; }
 
 .stage-wrap { position: relative; min-width: 0; min-height: 0; }
-.stage { position: absolute; inset: var(--propbar-h) 0 0 0; overflow: auto; display: flex; padding: var(--sp-6); }
+.stage { position: absolute; inset: var(--propbar-h) 0 0 0; overflow: auto; display: flex; padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-3); }
 .stage.panning { cursor: grabbing; }
 .paper { margin: auto; flex-shrink: 0; position: relative; box-shadow: var(--board-shadow); outline: 1px solid var(--line-strong); border-radius: 2px; background: var(--paper); line-height: 0; }
 #board { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -474,6 +477,17 @@ body.board-page { overflow: hidden; height: 100dvh; }
 .gate { max-width: 520px; margin: 12vh auto; text-align: center; padding: var(--sp-6); }
 .gate h1 { font-size: var(--fs-2xl); font-weight: 800; color: var(--text-bright); margin-bottom: var(--sp-3); }
 .gate p { color: var(--text-2); margin-bottom: var(--sp-5); }
+
+/* Short screens (Chromebooks with the browser bar showing): compact toolbar so it never overflows */
+@media (max-height: 720px) {
+  .toolbar { gap: 2px; padding: var(--sp-2) var(--sp-1); margin: var(--sp-2) 0 var(--sp-2) var(--sp-2); }
+  .tool { width: 40px; height: 40px; }
+  .toolbar-sep { margin: 2px 0; }
+}
+@media (max-height: 600px) {
+  .tool { width: 34px; height: 34px; }
+  .tool svg { width: 20px; height: 20px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .toast { transition: none; }

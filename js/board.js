@@ -524,7 +524,7 @@ function updateUndoButtons() {
 
 // ── layout / zoom ─────────────────────────────────────────────
 function layout() {
-  const sw = stage.clientWidth - 48, sh = stage.clientHeight - 48;
+  const sw = stage.clientWidth - 28, sh = stage.clientHeight - 24;
   const fit = Math.max(0.1, Math.min(sw / M.FRAME_W, sh / M.FRAME_H));
   scale = fit * zoom;
   svg.style.width = Math.round(M.FRAME_W * scale) + 'px';
